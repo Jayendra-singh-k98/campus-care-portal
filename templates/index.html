@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus Care Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_ind.css') }}" />
+</head>
+<body>
+
+  <div class="page-wrap">
+
+    <!-- Left panel – branding -->
+    <div class="brand-panel">
+      <div class="brand-inner">
+        <div class="logo">
+          <span class="cross">✚</span>
+        </div>
+        <h1>Campus<br/>Care</h1>
+        <p>Your campus health companion — fast, simple, secure.</p>
+        <ul class="feature-list">
+          <li>🩺 Submit health complaints online</li>
+          <li>📋 Track your treatment status</li>
+          <li>👨‍⚕️ Connect with campus doctors</li>
+          <li>🔒 Secure role-based access</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Right panel – login form -->
+    <div class="form-panel">
+      <div class="form-card">
+
+        <h2>Welcome back</h2>
+        <p class="subtitle">Sign in to your portal</p>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- Role tabs -->
+        <div class="role-tabs">
+          <button type="button" class="tab active" data-role="patient">Patient</button>
+          <button type="button" class="tab" data-role="doctor">Doctor</button>
+          <button type="button" class="tab" data-role="admin">Admin</button>
+        </div>
+
+        <form action="/login" method="post" id="loginForm">
+          <input type="hidden" name="role" id="roleField" value="patient" />
+
+          <div class="field">
+            <label for="username">Username / Roll No</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required />
+          </div>
+
+          <div class="field" id="passwordField" style="display:none;">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" />
+          </div>
+
+          <button type="submit" class="btn-primary">Sign In →</button>
+        </form>
+
+        <p class="check-status-link">
+          Not a registered user? 
+          <a href="/check_status">Check your case status here</a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const roleField = document.getElementById('roleField');
+    const passwordField = document.getElementById('passwordField');
+    const passwordInput = document.getElementById('password');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const role = tab.dataset.role;
+        roleField.value = role;
+        if (role === 'patient') {
+          passwordField.style.display = 'none';
+          passwordInput.removeAttribute('required');
+        } else {
+          passwordField.style.display = 'block';
+          passwordInput.setAttribute('required', 'required');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

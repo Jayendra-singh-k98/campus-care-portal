@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submitted — Campus Care</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_status.css') }}" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><span class="cross">✚</span> Campus Care</div>
+    <div class="nav-actions">
+      <a href="/" class="btn-logout">← Home</a>
+    </div>
+  </nav>
+
+  <div class="page-container center-content">
+    <div class="success-card">
+      <div class="success-icon">✅</div>
+      <h1>Complaint Submitted!</h1>
+      <p>Your health complaint has been registered successfully.</p>
+      <div class="success-details">
+        <div class="detail-row">
+          <span>Name</span>
+          <strong>{{ name }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Roll No</span>
+          <strong>{{ roll_no }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Assigned To</span>
+          <strong>Dr. {{ doctor }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Status</span>
+          <span class="badge badge-pending">Pending</span>
+        </div>
+      </div>
+      <a href="/check_status" class="btn-primary">Track Status →</a>
+    </div>
+  </div>
+</body>
+</html>

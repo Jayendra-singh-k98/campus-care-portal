@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Check Status — Campus Care</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_status.css') }}" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand"><span class="cross">✚</span> Campus Care</div>
+    <div class="nav-actions">
+      <a href="/" class="btn-logout">← Back to Login</a>
+    </div>
+  </nav>
+
+  <div class="page-container">
+
+    <div class="page-header">
+      <h1>Check Case Status</h1>
+      <p>Enter your roll number to view all your health records.</p>
+    </div>
+
+    <div class="card search-card">
+      <form action="/check_status" method="post">
+        <div class="search-row">
+          <input type="text" name="roll_no" placeholder="Enter your Roll Number…"
+                 value="{{ roll_no or '' }}" required />
+          <button type="submit" class="btn-primary">Search →</button>
+        </div>
+      </form>
+    </div>
+
+    {% if records is not none %}
+      {% if records %}
+        <div class="results-header">
+          <h2>Records for <strong>{{ roll_no }}</strong></h2>
+          <span class="count-badge">{{ records|length }} record{{ 's' if records|length != 1 }}</span>
+        </div>
+
+        {% for r in records %}
+        <div class="record-card">
+          <div class="record-top">
+            <div>
+              <h3>{{ r[2] }}</h3>
+              <span class="roll">{{ r[1] }} · Year {{ r[3] }}</span>
+            </div>
+            <span class="badge badge-{{ r[5]|lower }}">{{ r[5] }}</span>
+          </div>
+
+          <div class="record-body">
+            <div class="info-row">
+              <div class="info-item">
+                <span class="info-label">Condition</span>
+                <span class="info-value">{{ r[4] }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Assigned Doctor</span>
+                <span class="info-value">Dr. {{ r[6] or 'Unassigned' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Submitted</span>
+                <span class="info-value">
+                  {% if r[8] %}{{ r[8].strftime('%d %b %Y, %I:%M %p') }}{% else %}—{% endif %}
+                </span>
+              </div>
+            </div>
+
+            {% if r[7] %}
+            <div class="prescription-box">
+              <span class="info-label">📋 Prescription / Doctor Notes</span>
+              <p>{{ r[7] }}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+
+      {% else %}
+        <div class="empty-state">
+          <p>😕 No records found for roll number <strong>{{ roll_no }}</strong>.</p>
+          <p>Make sure you've submitted a complaint via the Patient Dashboard.</p>
+        </div>
+      {% endif %}
+    {% endif %}
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Dashboard — Campus Care</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_doctor.css') }}" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand"><span class="cross">✚</span> Campus Care</div>
+    <div class="nav-actions">
+      <span class="nav-user">👨‍⚕️ Dr. {{ doctor_name }}{% if specialization %} · <em>{{ specialization }}</em>{% endif %}</span>
+      <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="page-container">
+
+    <div class="page-header">
+      <div>
+        <h1>Doctor Dashboard</h1>
+        <p>Welcome back, Dr. {{ doctor_name }}. Here are your assigned patients.</p>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card total">
+        <span class="stat-num">{{ stats.total }}</span>
+        <span class="stat-label">Total Patients</span>
+      </div>
+      <div class="stat-card pending">
+        <span class="stat-num">{{ stats.pending }}</span>
+        <span class="stat-label">Pending</span>
+      </div>
+      <div class="stat-card medicine">
+        <span class="stat-num">{{ stats.medicine }}</span>
+        <span class="stat-label">Medicine</span>
+      </div>
+      <div class="stat-card appointment">
+        <span class="stat-num">{{ stats.appointment }}</span>
+        <span class="stat-label">Appointment</span>
+      </div>
+      <div class="stat-card discharged">
+        <span class="stat-num">{{ stats.discharged }}</span>
+        <span class="stat-label">Discharged</span>
+      </div>
+    </div>
+
+    <!-- Patient table -->
+    {% if patients %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Roll No</th>
+            <th>Name</th>
+            <th>Year</th>
+            <th>Condition</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Prescription / Notes</th>
+            <th>Update</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in patients %}
+          <tr class="row-{{ p[5]|lower }}">
+            <td><strong>{{ p[1] }}</strong></td>
+            <td>{{ p[2] }}</td>
+            <td>Year {{ p[3] }}</td>
+            <td>{{ p[4] }}</td>
+            <td>
+              <span class="badge badge-{{ p[5]|lower }}">{{ p[5] }}</span>
+            </td>
+            <td class="date-cell">
+              {% if p[8] %}{{ p[8].strftime('%d %b %Y') }}{% else %}—{% endif %}
+            </td>
+            <td>
+              <span class="prescription-text">
+                {{ p[7] if p[7] else '—' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-edit" onclick="openModal('{{ p[1] }}', '{{ p[5] }}', `{{ p[7] or '' }}`)">
+                Edit
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>🎉 No patients assigned yet.</p>
+    </div>
+    {% endif %}
+
+  </div><!-- /page-container -->
+
+  <!-- ── Update Modal ─────────────────────────────────── -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+  <div class="modal" id="updateModal">
+    <div class="modal-header">
+      <h3>Update Patient</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <form action="/update_status" method="post">
+      <input type="hidden" name="roll_no" id="modal_roll_no" />
+      <input type="hidden" name="doctor_name" value="{{ doctor_name }}" />
+
+      <div class="field">
+        <label>Status</label>
+        <select name="status" id="modal_status" required>
+          <option value="Pending">Pending</option>
+          <option value="Medicine">Medicine</option>
+          <option value="Appointment">Appointment</option>
+          <option value="Discharged">Discharged</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Prescription / Notes</label>
+        <textarea name="prescription" id="modal_prescription" rows="4"
+                  placeholder="Enter medicine names, dosage, advice…"></textarea>
+      </div>
+
+      <button type="submit" class="btn-primary">Save Changes →</button>
+    </form>
+  </div>
+
+  <script>
+    function openModal(rollNo, status, prescription) {
+      document.getElementById('modal_roll_no').value       = rollNo;
+      document.getElementById('modal_status').value        = status;
+      document.getElementById('modal_prescription').value  = prescription;
+      document.getElementById('modalOverlay').classList.add('active');
+      document.getElementById('updateModal').classList.add('active');
+    }
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+      document.getElementById('updateModal').classList.remove('active');
+    }
+  </script>
+</body>
+</html>

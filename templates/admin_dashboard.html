@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Campus Care</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_admin.css') }}" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand"><span class="cross">✚</span> Campus Care</div>
+    <div class="nav-actions">
+      <span class="nav-user">🛡️ Admin Panel</span>
+      <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="page-container">
+
+    <div class="page-header">
+      <h1>Admin Dashboard</h1>
+      <p>System overview and doctor management.</p>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card blue">
+        <span class="stat-num">{{ stats.total_patients }}</span>
+        <span class="stat-label">Total Patients</span>
+      </div>
+      <div class="stat-card teal">
+        <span class="stat-num">{{ stats.total_doctors }}</span>
+        <span class="stat-label">Doctors</span>
+      </div>
+      <div class="stat-card orange">
+        <span class="stat-num">{{ stats.pending }}</span>
+        <span class="stat-label">Pending</span>
+      </div>
+      <div class="stat-card purple">
+        <span class="stat-num">{{ stats.medicine }}</span>
+        <span class="stat-label">On Medicine</span>
+      </div>
+      <div class="stat-card sky">
+        <span class="stat-num">{{ stats.appointment }}</span>
+        <span class="stat-label">Appointments</span>
+      </div>
+      <div class="stat-card green">
+        <span class="stat-num">{{ stats.discharged }}</span>
+        <span class="stat-label">Discharged</span>
+      </div>
+    </div>
+
+    <!-- ── Doctor Management ─────────────────────────── -->
+    <div class="section-header">
+      <h2>Manage Doctors</h2>
+      <button class="btn-primary" onclick="document.getElementById('addDoctorForm').classList.toggle('hidden')">
+        + Add Doctor
+      </button>
+    </div>
+
+    <!-- Add doctor form (hidden by default) -->
+    <div class="card hidden" id="addDoctorForm">
+      <h3>Add New Doctor</h3>
+      <form action="/admin/add_doctor" method="post">
+        <div class="form-row">
+          <div class="field">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="e.g. dr_singh" required />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Set login password" required />
+          </div>
+          <div class="field">
+            <label>Specialization</label>
+            <input type="text" name="specialization" placeholder="e.g. General Medicine" required />
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Add Doctor →</button>
+      </form>
+    </div>
+
+    <!-- Doctors table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Specialization</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doctor in doctors %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td><strong>Dr. {{ doctor[1] }}</strong></td>
+            <td>{{ doctor[3] }}</td>
+            <td>
+              <form action="/admin/delete_doctor/{{ doctor[0] }}" method="post"
+                    onsubmit="return confirm('Remove Dr. {{ doctor[1] }}?')">
+                <button type="submit" class="btn-danger">Remove</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /page-container -->
+
+  <script>
+    // Keep add-doctor form open if there was a flash message (form submission)
+    const alerts = document.querySelectorAll('.alert');
+    if (alerts.length > 0) {
+      document.getElementById('addDoctorForm').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

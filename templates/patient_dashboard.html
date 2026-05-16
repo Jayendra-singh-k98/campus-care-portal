@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Dashboard — Campus Care</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_patient.css') }}" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand"><span class="cross">✚</span> Campus Care</div>
+    <div class="nav-actions">
+      <span class="nav-user">👤 {{ username or 'Patient' }}</span>
+      <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="page-container">
+
+    <div class="page-header">
+      <h1>Patient Dashboard</h1>
+      <p>Submit a new health complaint or check an existing case.</p>
+    </div>
+
+    <!-- Tab navigation -->
+    <div class="tabs">
+      <button class="tab active" data-tab="submit">📝 Submit Complaint</button>
+      <button class="tab" data-tab="status">🔍 Check Status</button>
+    </div>
+
+    <!-- ── Submit Complaint ─────────────────────────────── -->
+    <div class="tab-content active" id="tab-submit">
+      <div class="card">
+        <h2>New Health Complaint</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="/submit_patient" method="post">
+
+          <div class="form-row">
+            <div class="field">
+              <label for="roll_no">Roll Number</label>
+              <input type="text" id="roll_no" name="roll_no" placeholder="e.g. 22BCS001" required />
+            </div>
+            <div class="field">
+              <label for="year">Year of Study</label>
+              <input type="number" id="year" name="year" min="1" max="6" placeholder="1–6" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" placeholder="Your full name" required />
+          </div>
+
+          <div class="field">
+            <label for="disease">Symptoms / Condition</label>
+            <input type="text" id="disease" name="disease" placeholder="e.g. Fever, headache, stomach ache" required />
+          </div>
+
+          <div class="field">
+            <label for="doctor">Select Doctor</label>
+            <select id="doctor" name="doctor" required>
+              <option value="" disabled selected>Choose a doctor…</option>
+              {% for doctor in doctors %}
+              <option value="{{ doctor[1] }}">
+                Dr. {{ doctor[1] }} — {{ doctor[3] }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary">Submit Complaint →</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Check Status ─────────────────────────────────── -->
+    <div class="tab-content" id="tab-status">
+      <div class="card">
+        <h2>Check Case Status</h2>
+        <form action="/check_status" method="post">
+          <div class="field">
+            <label for="status_roll">Roll Number</label>
+            <input type="text" id="status_roll" name="roll_no" placeholder="Enter your roll number" required />
+          </div>
+          <button type="submit" class="btn-primary">Check Status →</button>
+        </form>
+      </div>
+    </div>
+
+  </div><!-- /page-container -->
+
+  <script>
+    const tabs = document.querySelectorAll('.tabs .tab');
+    const contents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        contents.forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
