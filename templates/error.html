@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Campus Care - Error</title>
+    <style>
+      body{font-family:Arial,Helvetica,sans-serif;background:#f8f9fa;color:#212529;padding:40px}
+      .card{max-width:700px;margin:40px auto;padding:24px;background:#fff;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+      .muted{color:#6c757d}
+      a.button{display:inline-block;margin-top:12px;padding:8px 14px;background:#007bff;color:#fff;border-radius:4px;text-decoration:none}
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Error</h1>
+      <p class="muted">{{ message }}</p>
+      <a class="button" href="{{ url_for('home') }}">Go Home</a>
+    </div>
+  </body>
+</html>

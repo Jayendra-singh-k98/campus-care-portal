@@ -1,21 +1,36 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash
+import os
+from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 import pymysql
 from functools import wraps
+from dotenv import load_dotenv
+
+# Load local .env in development (ignored in production platforms where env vars are set)
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'campus_care_secret_key_change_in_production'
+app.secret_key = os.getenv('SECRET_KEY', 'campus_care_secret_key_change_in_production')
 
 
-# ─── DB ──────────────────────────────────────────────────────────────────────
+# ─── DB 
 
 def get_db_connection():
-    return pymysql.connect(
-        host="localhost",
-        user="root",
-        password="Kuntal@2006",
-        database="campus_care"
-    )
+    try:
+        return pymysql.connect(
+            host=os.getenv('DB_HOST', 'localhost'),
+            user=os.getenv('DB_USER', 'root'),
+            password=os.getenv('DB_PASSWORD', ''),
+            database=os.getenv('DB_NAME', 'campus_care'),
+            port=int(os.getenv('DB_PORT', 3306)),
+            charset='utf8mb4',
+            connect_timeout=5
+        )
+    except pymysql.err.OperationalError as err:
+        app.logger.exception('Database connection failed')
+        # Raise a higher-level error that Flask can handle and render a friendly page
+        raise RuntimeError(
+            'Database connection failed: check DB_HOST, DB_USER, DB_PASSWORD, and DB_NAME.'
+        ) from err
 
 
 # ─── Auth Decorator ──────────────────────────────────────────────────────────
@@ -120,7 +135,6 @@ def submit_patient():
             f'(Status: {existing[5]}). Wait for it to be resolved.',
             'warning'
         )
-        return redirect(url_for('patient_dashboard'))
 
     cursor.execute(
         'INSERT INTO Patient (roll_no, name, year, disease, status, doctor_name) '
@@ -292,4 +306,21 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.getenv('PORT', 5000))
+    debug = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
+    app.run(host='0.0.0.0', port=port, debug=debug)
+
+
+# --- Error handlers ---------------------------------------------------------
+@app.errorhandler(RuntimeError)
+def handle_runtime_error(error):
+    # Show a friendly message for runtime errors (e.g. DB connection problems)
+    message = str(error)
+    return render_template('error.html', message=message), 503
+
+
+@app.errorhandler(500)
+def handle_internal_error(error):
+    # Generic 500 handler to avoid exposing internals in production
+    app.logger.exception('Internal server error')
+    return render_template('error.html', message='Internal server error.'), 500
