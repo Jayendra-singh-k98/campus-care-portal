@@ -135,6 +135,7 @@ def submit_patient():
             f'(Status: {existing[5]}). Wait for it to be resolved.',
             'warning'
         )
+        return redirect(url_for('patient_dashboard'))
 
     cursor.execute(
         'INSERT INTO Patient (roll_no, name, year, disease, status, doctor_name) '
